@@ -1,0 +1,121 @@
+// Project Deadnote
+// Nicholas Vesely
+// University of Advancing Technology
+// nicvesel@uat.edu
+//
+// This file contains a list of all changes and modifications which had to be
+// made in order to integrate CSharpSynth with Unity and create this example scene. 
+// Many hours were spent researching through both API's and documentation in order to 
+// complete this project. 
+//
+//CSharpSynth/Banks/InstrumentBank.cs
+//	"public void loadBank(string bankfile)"
+//		removed "loadStream(File.Open(bankfile, FileMode.Open), Path.GetDirectoryName(bankfile) + "\\", null, null)"
+//		added "TextAsset bankFile = Resources.Load(bankfile) as TextAsset" 
+//		added "Debug.Log("loadBank(string bankfile) " + bankfile)"
+//		added "Stream bankStream = new MemoryStream(bankFile.bytes)"
+//	"public void loadBank(byte[] Programs, byte[] DrumPrograms)"
+//		removed "loadStream(File.Open(lastbankpath, FileMode.Open), Path.GetDirectoryName(lastbankpath) + "\\", Programs, DrumPrograms)"
+//		added "TextAsset lastBankPath = Resources.Load(lastbankpath) as TextAsset"
+//		added "Debug.Log("loadBank(byte[] Programs, byte[] DrumPrograms) " + lastbankpath)"
+//		added "Stream bankStream = new MemoryStream(lastBankPath.bytes)"
+//		added "this.loadStream(bankStream, Path.GetDirectoryName(lastbankpath) + "/", Programs, DrumPrograms)"
+//
+//CSharpSynth/Banks/SFZ/SFZInstruments.cs
+//	"public SfzInstrument(string Instrumentfile, int sampleRate, InstrumentBank bank)"
+//		removed "ReadFromStream(File.Open(Instrumentfile, FileMode.Open), Path.GetDirectoryName(Instrumentfile) + "\\", bank)"
+//		added "TextAsset instrumentFile = Resources.Load(Instrumentfile) as TextAsset"
+//		added "Stream instrumentStream = new MemoryStream(instrumentFile.bytes)"
+//		added "Debug.Log(Instrumentfile)"
+//		added "this.ReadFromStream(instrumentStream, Path.GetDirectoryName(Instrumentfile) + "/", bank)"
+//
+//CSharpSynth/Midi/MidiFile.cs
+//	added "public MidiFile(byte[] byteArray)"
+//	"public MidiFile(string filename)"
+//		removed "midiStream = File.Open(filename, FileMode.Open)"
+//		added "TextAsset midiFileName = Resources.Load(filename) as TextAsset"
+//		added "midiStream = new MemoryStream(midiFileName.bytes)"
+//	
+//CSharpSynth/Sequencer/MidiSequencer.cs
+//	added "private bool paused = false"
+//	"public bool LoadMidi(MidiFile midi, bool UnloadUnusedInstruments)"
+//		added "Debug.Log("Error Loading Midi:\n" + ex.Message)"
+//	"public bool LoadMidi(string file, bool UnloadUnusedInstruments)"
+//		added "Debug.Log("Error Loading Midi:\n" + ex.Message)"
+//	added "public void Pause()"
+//	added "public void Unpause()"
+//
+//
+//CSharpSynth/Synthesis/NoteRegistryKey.cs
+//	removed "public struct NoteRegistryKey : IEquatable<NoteRegistryKey>"
+//	added "public struct NoteRegistryKey"
+//	public "StreamSynthesizer(int sampleRate, int audioChannels, int bufferSize, int maxpoly)"
+//
+//CSharpSynth/Synthesis/StreamSynthesizer.cs
+//	removed "public StreamSynthesizer(int sampleRate, int audioChannels, int bufferSizeInMilliseconds, int maxpoly)"
+//	added "public StreamSynthesizer(int sampleRate, int audioChannels, int bufferSize, int maxpoly)"
+//	"public bool LoadBank(string filename)"
+//		removed try/catch
+//		removed "BankManager.addBank(new InstrumentBank(sampleRate, filename))"
+//		removed "SwitchBank(BankManager.Count - 1)"
+//		removed "Debug.Log("Bank load error!\n" + ex.Message + "\n\n" + ex.StackTrace)"
+//		removed "return false"
+//		added "BankManager.addBank(new InstrumentBank(sampleRate, filename))"
+//		added "SwitchBank(BankManager.Count - 1)"
+//		addd "return true"
+//
+//CSharpSynth/Wave/Sample.cs
+//	"public Sample(string filename)"
+//		removed "if (System.IO.File.Exists(filename) == false)"
+//		removed "throw new System.IO.FileNotFoundException("Sample not found: " + Path.GetFileNameWithoutExtension(filename))"
+//	
+//CSharpSynth/Wave/WaveFileReader.cs
+//	"public class WaveFileReader"
+//		removed "if (Path.GetExtension(filename).ToLower() != ".wav" || File.Exists(filename) == false)"
+//		removed "throw new IOException("Invalid wave file!")"
+//		removed "BR = new System.IO.BinaryReader(System.IO.File.OpenRead(filename))"
+//		added "TextAsset fileName = Resources.Load(filename) as TextAsset"
+//		added "Stream waveFileStream = new MemoryStream(fileName.bytes)"
+//		added "BR = new BinaryReader(waveFileStream)"
+//	"public void Close()"
+//		removed "BR.Dispose()"
+//
+//CSharpSynth/Wave/WaveFileWriter.cs
+//	"public void Close()"
+//		removed "BW.Dispose()"
+//
+//CSharpSynth/Wave/WaveHelper.cs
+//	"public static void ChangeBitsPerSample(FormatChunk fmtchk, DataChunk datachk, int bitsPerSample)"
+//		removed "float change = bitsPerSample / fmtchk.wBitsPerSample"
+//
+//Resources
+//	found bank of .wav and .sfz files required for synthesizers in project demo of CSharpSynth
+//	created GM Bank folder in Unity
+//	amended all .sfz files with .txt for import capability into Unity
+//	amended all .wave files with .bytes for import capability into Unity
+//	found and imported two .mid files to play in Unity scene
+//	found and imported .mov file to playback in Unity scene
+//
+//Scripts/UnityMidiPlayer.cs
+//	created a UnityMidiPlayer.cs and all source code 
+//		added required calls to load Midi files from resource and ready Midi playback		
+//		added necessary logic for "Play", "Stop", "Pause", and "Mute" of channels
+//		added Midi's songtime to the "Song Time" gui text object
+//		added Midi's songtime to the "Song Title" gui text object
+//		added "public void MidiNoteOnHandler (int channel, int note, int velocity)"
+//		added "public void MidiNoteOffHandler (int channel, int note)"
+//
+//
+//Scripts/PlayBackground.cs
+//	created logic for playing a looping
+//		added "movie = renderer.material.mainTexture as MovieTexture"
+//		added "movie.loop = true"
+//		added "movie.Play ()"
+//
+//Game (Unity Scene)
+//	added gui buttons for "Play", "Stop", and 16 "Mute" buttons
+//	added "Song Title" gui text object
+//	added "Song Time" gui text object
+//	added "Cube" for playback surface of movie
+//	added the .mov file to the "Cube" for playback
+//	added script of Playbackground.cs to the "Cube"
